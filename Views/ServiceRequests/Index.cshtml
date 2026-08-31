@@ -1,0 +1,145 @@
+@model IEnumerable<UniversityServiceDesk.Models.ServiceRequest>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Service Requests";
+
+    var totalRequests = Model.Count();
+    var newRequests = Model.Count(r => r.Status == "New");
+    var inProgressRequests = Model.Count(r => r.Status == "In Progress");
+    var completedRequests = Model.Count(r => r.Status == "Completed");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>IT Service Requests</h1>
+        <p class="text-muted">
+            Manage and track university technical support requests.
+        </p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary">
+        Create New Request
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Total Requests</h6>
+                <h2>@totalRequests</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-primary">
+            <div class="card-body">
+                <h6>New</h6>
+                <h2 class="text-primary">@newRequests</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-warning">
+            <div class="card-body">
+                <h6>In Progress</h6>
+                <h2 class="text-warning">@inProgressRequests</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-success">
+            <div class="card-body">
+                <h6>Completed</h6>
+                <h2 class="text-success">@completedRequests</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Requester</th>
+                        <th>Department</th>
+                        <th>Issue</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    var priorityClass = item.Priority switch
+                    {
+                        "High" => "bg-danger",
+                        "Medium" => "bg-warning text-dark",
+                        _ => "bg-secondary"
+                    };
+
+                    var statusClass = item.Status switch
+                    {
+                        "Completed" => "bg-success",
+                        "In Progress" => "bg-warning text-dark",
+                        _ => "bg-primary"
+                    };
+
+                    <tr>
+                        <td>@item.RequesterName</td>
+                        <td>@item.Department</td>
+                        <td>@item.Title</td>
+
+                        <td>
+                            <span class="badge @priorityClass">
+                                @item.Priority
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge @statusClass">
+                                @item.Status
+                            </span>
+                        </td>
+
+                        <td>
+                            @item.CreatedAt.ToString(
+                                "dd MMM yyyy, hh:mm tt",
+                                CultureInfo.InvariantCulture)
+                        </td>
+
+                        <td>
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-info">
+                                Details
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

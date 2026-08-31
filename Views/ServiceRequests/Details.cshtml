@@ -1,0 +1,95 @@
+@model UniversityServiceDesk.Models.ServiceRequest
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Request Details";
+
+    var priorityClass = Model.Priority switch
+    {
+        "High" => "bg-danger",
+        "Medium" => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    var statusClass = Model.Status switch
+    {
+        "Completed" => "bg-success",
+        "In Progress" => "bg-warning text-dark",
+        _ => "bg-primary"
+    };
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-dark text-white py-3">
+                <h3 class="mb-0">Service Request Details</h3>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Request ID</div>
+                    <div class="col-md-8">#@Model.Id</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Requester</div>
+                    <div class="col-md-8">@Model.RequesterName</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Department</div>
+                    <div class="col-md-8">@Model.Department</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Issue Title</div>
+                    <div class="col-md-8">@Model.Title</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Description</div>
+                    <div class="col-md-8">@Model.Description</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Priority</div>
+                    <div class="col-md-8">
+                        <span class="badge @priorityClass">
+                            @Model.Priority
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Status</div>
+                    <div class="col-md-8">
+                        <span class="badge @statusClass">
+                            @Model.Status
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4 fw-bold">Created</div>
+                    <div class="col-md-8">
+                        @Model.CreatedAt.ToString(
+                            "dd MMM yyyy, hh:mm tt",
+                            CultureInfo.InvariantCulture)
+                    </div>
+                </div>
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-primary">
+                    Edit Request
+                </a>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

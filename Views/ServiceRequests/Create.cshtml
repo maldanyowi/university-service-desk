@@ -1,0 +1,89 @@
+@model UniversityServiceDesk.Models.ServiceRequest
+
+@{
+    ViewData["Title"] = "Create Service Request";
+}
+
+<h1>Create Service Request</h1>
+<p class="text-muted">
+    Enter the request information below.
+</p>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="RequesterName"
+                       class="form-label">Requester Name</label>
+                <input asp-for="RequesterName"
+                       class="form-control" />
+                <span asp-validation-for="RequesterName"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Department"
+                       class="form-label"></label>
+                <input asp-for="Department"
+                       class="form-control" />
+                <span asp-validation-for="Department"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Title"
+                       class="form-label">Issue Title</label>
+                <input asp-for="Title"
+                       class="form-control" />
+                <span asp-validation-for="Title"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description"
+                       class="form-label"></label>
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"></textarea>
+                <span asp-validation-for="Description"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Priority"
+                       class="form-label"></label>
+                <select asp-for="Priority"
+                        class="form-select">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Status"
+                       class="form-label"></label>
+                <select asp-for="Status"
+                        class="form-select">
+                    <option value="New" selected>New</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">Create Request</button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
