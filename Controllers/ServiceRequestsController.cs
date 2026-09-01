@@ -1,186 +1,229 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UniversityServiceDesk.Data;
 using UniversityServiceDesk.Models;
 
-namespace UniversityServiceDesk.Controllers
+namespace UniversityServiceDesk.Controllers;
+
+[Authorize]
+public class ServiceRequestsController : Controller
 {
-    public class ServiceRequestsController : Controller
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<IdentityUser> _userManager;
+
+    public ServiceRequestsController(
+        ApplicationDbContext context,
+        UserManager<IdentityUser> userManager)
     {
-        private readonly ApplicationDbContext _context;
-
-        public ServiceRequestsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        // GET: ServiceRequests
-public async Task<IActionResult> Index(
-    string? searchString,
-    string? status)
-{
-    var requests = _context.ServiceRequests.AsQueryable();
-
-    if (!string.IsNullOrWhiteSpace(searchString))
-    {
-        requests = requests.Where(r =>
-            r.RequesterName.Contains(searchString) ||
-            r.Department.Contains(searchString) ||
-            r.Title.Contains(searchString));
+        _context = context;
+        _userManager = userManager;
     }
 
-    if (!string.IsNullOrWhiteSpace(status))
+    // Requesters see their own requests.
+    // Technicians see all requests.
+    public async Task<IActionResult> Index(
+        string? searchString,
+        string? status)
     {
-        requests = requests.Where(r => r.Status == status);
+        var requests =
+            _context.ServiceRequests.AsQueryable();
+
+        if (!User.IsInRole("Technician"))
+        {
+            var userId = _userManager.GetUserId(User);
+
+            requests = requests.Where(
+                request => request.UserId == userId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            requests = requests.Where(request =>
+                request.RequesterName.Contains(searchString) ||
+                request.Department.Contains(searchString) ||
+                request.Title.Contains(searchString));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            requests = requests.Where(
+                request => request.Status == status);
+        }
+
+        return View(await requests
+            .OrderByDescending(request => request.CreatedAt)
+            .ToListAsync());
     }
 
-    ViewData["CurrentSearch"] = searchString;
-    ViewData["CurrentStatus"] = status;
-
-    return View(await requests
-        .OrderByDescending(r => r.CreatedAt)
-        .ToListAsync());
-}
-        // GET: ServiceRequests/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var serviceRequest = await _context.ServiceRequests
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (serviceRequest == null)
-            {
-                return NotFound();
-            }
-
-            return View(serviceRequest);
-        }
-
-        // GET: ServiceRequests/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ServiceRequests/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Create(
-    [Bind("RequesterName,Department,Title,Description")]
-    ServiceRequest serviceRequest)
-{
-    if (ModelState.IsValid)
+    public async Task<IActionResult> Details(int? id)
     {
-        serviceRequest.Priority = "Medium";
-        serviceRequest.Status = "New";
-        serviceRequest.CreatedAt = DateTime.Now;
+        if (id == null)
+        {
+            return NotFound();
+        }
 
-        _context.Add(serviceRequest);
-        await _context.SaveChangesAsync();
+        var serviceRequest =
+            await _context.ServiceRequests
+                .FirstOrDefaultAsync(
+                    request => request.Id == id);
+
+        if (serviceRequest == null)
+        {
+            return NotFound();
+        }
+
+        if (!CanAccess(serviceRequest))
+        {
+            return Forbid();
+        }
+
+        return View(serviceRequest);
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(
+        [Bind("RequesterName,Department,Title,Description")]
+        ServiceRequest serviceRequest)
+    {
+        if (ModelState.IsValid)
+        {
+            serviceRequest.Priority = "Medium";
+            serviceRequest.Status = "New";
+            serviceRequest.CreatedAt = DateTime.Now;
+            serviceRequest.UserId =
+                _userManager.GetUserId(User);
+
+            _context.Add(serviceRequest);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(serviceRequest);
+    }
+
+    [Authorize(Roles = "Technician")]
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var serviceRequest =
+            await _context.ServiceRequests.FindAsync(id);
+
+        if (serviceRequest == null)
+        {
+            return NotFound();
+        }
+
+        return View(serviceRequest);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Technician")]
+    public async Task<IActionResult> Edit(
+        int id,
+        ServiceRequest serviceRequest)
+    {
+        if (id != serviceRequest.Id)
+        {
+            return NotFound();
+        }
+
+        var existingRequest =
+            await _context.ServiceRequests.FindAsync(id);
+
+        if (existingRequest == null)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            existingRequest.RequesterName =
+                serviceRequest.RequesterName;
+
+            existingRequest.Department =
+                serviceRequest.Department;
+
+            existingRequest.Title =
+                serviceRequest.Title;
+
+            existingRequest.Description =
+                serviceRequest.Description;
+
+            existingRequest.Priority =
+                serviceRequest.Priority;
+
+            existingRequest.Status =
+                serviceRequest.Status;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(serviceRequest);
+    }
+
+    [Authorize(Roles = "Technician")]
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var serviceRequest =
+            await _context.ServiceRequests
+                .FirstOrDefaultAsync(
+                    request => request.Id == id);
+
+        if (serviceRequest == null)
+        {
+            return NotFound();
+        }
+
+        return View(serviceRequest);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Technician")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var serviceRequest =
+            await _context.ServiceRequests.FindAsync(id);
+
+        if (serviceRequest != null)
+        {
+            _context.ServiceRequests.Remove(serviceRequest);
+            await _context.SaveChangesAsync();
+        }
 
         return RedirectToAction(nameof(Index));
     }
 
-    return View(serviceRequest);
-}
-
-        // GET: ServiceRequests/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+    private bool CanAccess(ServiceRequest serviceRequest)
+    {
+        if (User.IsInRole("Technician"))
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var serviceRequest = await _context.ServiceRequests.FindAsync(id);
-            if (serviceRequest == null)
-            {
-                return NotFound();
-            }
-            return View(serviceRequest);
+            return true;
         }
 
-        // POST: ServiceRequests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RequesterName,Department,Title,Description,Priority,Status,CreatedAt")] ServiceRequest serviceRequest)
-        {
-            if (id != serviceRequest.Id)
-            {
-                return NotFound();
-            }
+        var userId = _userManager.GetUserId(User);
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(serviceRequest);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ServiceRequestExists(serviceRequest.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(serviceRequest);
-        }
-
-        // GET: ServiceRequests/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var serviceRequest = await _context.ServiceRequests
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (serviceRequest == null)
-            {
-                return NotFound();
-            }
-
-            return View(serviceRequest);
-        }
-
-        // POST: ServiceRequests/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var serviceRequest = await _context.ServiceRequests.FindAsync(id);
-            if (serviceRequest != null)
-            {
-                _context.ServiceRequests.Remove(serviceRequest);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ServiceRequestExists(int id)
-        {
-            return _context.ServiceRequests.Any(e => e.Id == id);
-        }
+        return serviceRequest.UserId == userId;
     }
 }

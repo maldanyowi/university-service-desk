@@ -1,64 +1,102 @@
 # University IT Service Request System
 
-A web-based application for managing and tracking technical support requests in a university environment.
+A role-based web application for managing and tracking technical support requests in a university environment.
 
 ## Project Overview
 
-I developed this project to demonstrate how technical support requests can be recorded, organized, and tracked through a simple web application.
+I developed this project to demonstrate how university IT service requests can be submitted, organized, and tracked securely.
 
-The system allows users to create service requests, assign priorities, update request statuses, view request details, and delete requests. It also includes a dashboard that displays request statistics.
+The system separates regular requesters from IT technicians using ASP.NET Core Identity and role-based authorization.
+
+## User Roles
+
+### Requester
+
+- Register and log in
+- Create service requests
+- View only their own requests
+- View request details
+- Cannot change priority or status
+- Cannot edit or delete requests
+
+### Technician
+
+- Log in using a technician account
+- View all service requests
+- Change request priority and status
+- Edit and delete requests
 
 ## Features
 
-- Create new service requests
-- View all requests
-- View request details
-- Edit existing requests
-- Delete requests
-- Track request priority
-- Track request status
-- Dashboard with request statistics
+- User registration
+- Secure login and logout
+- Role-based authorization
+- Request ownership
+- CRUD operations
+- Priority and status tracking
+- Dashboard statistics
 - Input validation
-- Responsive user interface
+- Responsive Bootstrap interface
 
 ## Technologies Used
 
 - C#
 - .NET 10
 - ASP.NET Core MVC
+- ASP.NET Core Identity
 - Entity Framework Core
 - SQLite
 - Bootstrap
 - HTML and CSS
 - Visual Studio Code
-- Git
+- Git and GitHub
 
 ## Architecture
 
 The project follows the MVC design pattern:
 
-- **Model:** Represents service request data and validation rules.
-- **View:** Displays the user interface.
-- **Controller:** Handles user actions and communicates with the database.
+- **Model:** Represents request data and validation rules
+- **View:** Displays the user interface
+- **Controller:** Handles requests, authorization, and database operations
 
-## Database
+## Security
 
-The application uses SQLite with Entity Framework Core. Database changes are managed through EF Core Migrations.
+ASP.NET Core Identity is used for authentication, password hashing, user management, roles, and authorization.
 
-## CRUD Operations
+The application contains two roles:
 
-The application supports:
+- `Requester`
+- `Technician`
 
-- **Create:** Add a new request
-- **Read:** View requests and details
-- **Update:** Edit request information and status
-- **Delete:** Remove a request
+Technician credentials are stored locally using .NET User Secrets and are not committed to GitHub.
 
 ## How to Run
 
-1. Clone the repository.
-2. Open the project folder.
-3. Restore the required packages:
+1. Restore packages:
 
 ```bash
 dotnet restore
+```
+
+2. Configure a local technician account:
+
+```bash
+dotnet user-secrets set "TechnicianAccount:Email" "technician@example.com"
+dotnet user-secrets set "TechnicianAccount:Password" "YourSecurePassword"
+```
+
+3. Create the database:
+
+```bash
+dotnet ef database update
+```
+
+4. Run the application:
+
+```bash
+dotnet run
+```
+
+## Developer
+
+Developed by Marwah
