@@ -74,17 +74,25 @@ public async Task<IActionResult> Index(
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RequesterName,Department,Title,Description,Priority,Status,CreatedAt")] ServiceRequest serviceRequest)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(serviceRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(serviceRequest);
-        }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(
+    [Bind("RequesterName,Department,Title,Description")]
+    ServiceRequest serviceRequest)
+{
+    if (ModelState.IsValid)
+    {
+        serviceRequest.Priority = "Medium";
+        serviceRequest.Status = "New";
+        serviceRequest.CreatedAt = DateTime.Now;
+
+        _context.Add(serviceRequest);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    return View(serviceRequest);
+}
 
         // GET: ServiceRequests/Edit/5
         public async Task<IActionResult> Edit(int? id)
