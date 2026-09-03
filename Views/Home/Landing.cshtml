@@ -1,0 +1,463 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<style>
+    .public-home {
+        min-height: calc(100vh - 142px);
+        background:
+            radial-gradient(
+                circle at 90% 10%,
+                rgba(105, 194, 218, 0.17),
+                transparent 30%
+            ),
+            linear-gradient(135deg, #f8fcfd, #edf8fb);
+    }
+
+    .hero-section {
+        min-height: calc(100vh - 142px);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 55px;
+        align-items: center;
+        padding: 65px 0;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 13px;
+        margin-bottom: 22px;
+        color: #367f95;
+        background: #e3f5f9;
+        border: 1px solid #c4e5ed;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .hero-label-dot {
+        width: 8px;
+        height: 8px;
+        background: #57afc8;
+        border-radius: 50%;
+    }
+
+    .hero-title {
+        max-width: 680px;
+        margin: 0;
+        color: #173947;
+        font-size: clamp(42px, 6vw, 68px);
+        font-weight: 800;
+        letter-spacing: -2px;
+        line-height: 1.08;
+    }
+
+    .hero-title span {
+        color: #48a4bf;
+    }
+
+    .hero-description {
+        max-width: 625px;
+        margin: 23px 0 30px;
+        color: #617982;
+        font-size: 18px;
+        line-height: 1.75;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .primary-button,
+    .secondary-button {
+        min-width: 145px;
+        min-height: 51px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 22px;
+        border-radius: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .primary-button {
+        color: #ffffff;
+        background: #55afc8;
+        border: 1px solid #55afc8;
+        box-shadow: 0 9px 22px rgba(70, 159, 184, 0.22);
+    }
+
+    .primary-button:hover {
+        color: #ffffff;
+        background: #3d96af;
+        border-color: #3d96af;
+        transform: translateY(-2px);
+    }
+
+    .secondary-button {
+        color: #347b90;
+        background: #ffffff;
+        border: 1px solid #bddfe8;
+    }
+
+    .secondary-button:hover {
+        color: #286b7f;
+        background: #f4fbfd;
+        border-color: #9dd0dc;
+        transform: translateY(-2px);
+    }
+
+    .hero-visual {
+        position: relative;
+        min-height: 470px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .visual-background {
+        position: absolute;
+        width: 440px;
+        height: 440px;
+        background: rgba(187, 228, 238, 0.42);
+        border-radius: 48% 52% 45% 55%;
+    }
+
+    .visual-card {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 550px;
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid #d4e9ee;
+        border-radius: 26px;
+        box-shadow: 0 24px 55px rgba(47, 101, 117, 0.15);
+        transform: none;
+    }
+
+    .visual-card svg {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    @@media (max-width: 992px) {
+        .hero-section {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding-top: 50px;
+        }
+
+        .hero-content {
+            text-align: center;
+        }
+
+        .hero-title,
+        .hero-description {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-actions {
+            justify-content: center;
+        }
+
+        .hero-visual {
+            min-height: 400px;
+        }
+
+        .visual-card {
+            max-width: 600px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .hero-section {
+            padding: 40px 0;
+        }
+
+        .hero-title {
+            letter-spacing: -1px;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+        }
+
+        .primary-button,
+        .secondary-button {
+            width: 100%;
+        }
+
+        .hero-visual {
+            min-height: 300px;
+        }
+
+        .visual-background {
+            width: 270px;
+            height: 270px;
+        }
+
+        .visual-card {
+            padding: 14px;
+            border-radius: 19px;
+        }
+    }
+</style>
+
+<section class="public-home">
+    <div class="container-fluid px-4 px-lg-5">
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-label">
+                    <span class="hero-label-dot"></span>
+                    University IT Support
+                </div>
+
+                <h1 class="hero-title">
+                    Technical support,
+                    <span>organized in one place.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Submit university IT service requests, follow their
+                    progress, and stay informed from the initial report
+                    until the issue is resolved.
+                </p>
+
+                <div class="hero-actions">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="ServiceRequests"
+                           asp-action="Index"
+                           class="primary-button">
+                            Open Dashboard
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity"
+                           asp-page="/Account/Login"
+                           asp-route-returnUrl="/ServiceRequests"
+                           class="primary-button">
+                            Sign In
+                        </a>
+
+                        <a asp-area="Identity"
+                           asp-page="/Account/Register"
+                           asp-route-returnUrl="/ServiceRequests"
+                           class="secondary-button">
+                            Create Account
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="visual-background"></div>
+
+                <div class="visual-card">
+                    <svg viewBox="0 0 620 470"
+                         xmlns="http://www.w3.org/2000/svg"
+                         aria-label="University technical support workspace">
+
+                        <rect x="85"
+                              y="58"
+                              width="450"
+                              height="295"
+                              rx="24"
+                              fill="#294d59" />
+
+                        <rect x="103"
+                              y="76"
+                              width="414"
+                              height="258"
+                              rx="13"
+                              fill="#f9fdfe" />
+
+                        <rect x="103"
+                              y="76"
+                              width="414"
+                              height="46"
+                              rx="13"
+                              fill="#d9f1f6" />
+
+                        <circle cx="128"
+                                cy="99"
+                                r="6"
+                                fill="#55afc8" />
+
+                        <circle cx="148"
+                                cy="99"
+                                r="6"
+                                fill="#85c9da" />
+
+                        <circle cx="168"
+                                cy="99"
+                                r="6"
+                                fill="#a7dbe6" />
+
+                        <rect x="128"
+                              y="147"
+                              width="112"
+                              height="16"
+                              rx="8"
+                              fill="#b9dbe3" />
+
+                        <rect x="128"
+                              y="184"
+                              width="362"
+                              height="39"
+                              rx="10"
+                              fill="#edf7f9" />
+
+                        <circle cx="151"
+                                cy="203"
+                                r="9"
+                                fill="#60b8d0" />
+
+                        <rect x="174"
+                              y="196"
+                              width="145"
+                              height="9"
+                              rx="4"
+                              fill="#abcbd3" />
+
+                        <rect x="402"
+                              y="194"
+                              width="68"
+                              height="18"
+                              rx="9"
+                              fill="#d9eef4" />
+
+                        <rect x="128"
+                              y="236"
+                              width="362"
+                              height="39"
+                              rx="10"
+                              fill="#edf7f9" />
+
+                        <circle cx="151"
+                                cy="255"
+                                r="9"
+                                fill="#e3b65f" />
+
+                        <rect x="174"
+                              y="248"
+                              width="175"
+                              height="9"
+                              rx="4"
+                              fill="#abcbd3" />
+
+                        <rect x="390"
+                              y="246"
+                              width="80"
+                              height="18"
+                              rx="9"
+                              fill="#fff0ce" />
+
+                        <rect x="128"
+                              y="288"
+                              width="362"
+                              height="28"
+                              rx="10"
+                              fill="#edf7f9" />
+
+                        <circle cx="151"
+                                cy="302"
+                                r="8"
+                                fill="#69b38e" />
+
+                        <rect x="174"
+                              y="297"
+                              width="115"
+                              height="9"
+                              rx="4"
+                              fill="#abcbd3" />
+
+                        <path d="M62 354 H558 L600 388
+                                 Q606 395 594 399
+                                 H26
+                                 Q14 395 20 388 Z"
+                              fill="#3d6571" />
+
+                        <rect x="245"
+                              y="369"
+                              width="130"
+                              height="11"
+                              rx="5"
+                              fill="#bcdfe7" />
+
+                        <g transform="translate(443 278)">
+                            <path d="M50 0
+                                     L94 17
+                                     V57
+                                     C94 91 74 114 50 126
+                                     C26 114 6 91 6 57
+                                     V17 Z"
+                                  fill="#58b0c9" />
+
+                            <path d="M50 17
+                                     L78 28
+                                     V56
+                                     C78 78 66 94 50 103
+                                     C34 94 22 78 22 56
+                                     V28 Z"
+                                  fill="#eefafd" />
+
+                            <path d="M36 58 L47 69 L67 44"
+                                  fill="none"
+                                  stroke="#398ba3"
+                                  stroke-width="8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                        </g>
+
+                        <g transform="translate(25 215)">
+                            <path d="M12 58
+                                     C12 24 34 3 65 3
+                                     C96 3 118 24 118 58"
+                                  fill="none"
+                                  stroke="#65bdd5"
+                                  stroke-width="12"
+                                  stroke-linecap="round" />
+
+                            <rect x="3"
+                                  y="54"
+                                  width="23"
+                                  height="57"
+                                  rx="10"
+                                  fill="#3f91aa" />
+
+                            <rect x="104"
+                                  y="54"
+                                  width="23"
+                                  height="57"
+                                  rx="10"
+                                  fill="#3f91aa" />
+
+                            <path d="M117 106
+                                     C117 127 98 133 82 133"
+                                  fill="none"
+                                  stroke="#65bdd5"
+                                  stroke-width="7"
+                                  stroke-linecap="round" />
+
+                            <circle cx="76"
+                                    cy="133"
+                                    r="8"
+                                    fill="#3f91aa" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>

@@ -1,90 +1,396 @@
 @model UniversityServiceDesk.Models.ServiceRequest
 
 @{
-    ViewData["Title"] = "Create Service Request";
+    ViewData["Title"] = "Create Request";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-dark text-white py-3">
-                <h3 class="mb-0">Create Service Request</h3>
-            </div>
+<style>
+    .request-page {
+        min-height: 78vh;
+        padding: 48px 20px;
+        background: #f5fbfd;
+    }
 
-            <div class="card-body p-4">
-                <p class="text-muted">
-                    Enter the technical issue information below.
-                    New requests automatically start with
-                    Medium priority and New status.
-                </p>
+    .request-container {
+        width: 100%;
+        max-width: 1050px;
+        margin: 0 auto;
+    }
 
-                <form asp-action="Create">
-                    <div asp-validation-summary="ModelOnly"
-                         class="text-danger"></div>
+    .page-heading {
+        margin-bottom: 28px;
+    }
 
-                    <div class="mb-3">
-                        <label asp-for="RequesterName"
-                               class="form-label">
-                            Requester Name
-                        </label>
+    .page-label {
+        margin-bottom: 8px;
+        color: #65aabd;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
 
-                        <input asp-for="RequesterName"
-                               class="form-control" />
+    .page-heading h1 {
+        margin-bottom: 8px;
+        color: #263b42;
+        font-size: 38px;
+        font-weight: 750;
+    }
 
-                        <span asp-validation-for="RequesterName"
-                              class="text-danger"></span>
+    .page-heading p {
+        margin: 0;
+        color: #74898f;
+        font-size: 16px;
+    }
+
+    .request-shell {
+        overflow: hidden;
+        border: 1px solid #dceef3;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 18px 45px rgba(54, 116, 134, 0.11);
+    }
+
+    .request-form {
+        padding: 45px;
+    }
+
+    .request-form .form-label {
+        margin-bottom: 8px;
+        color: #344b53;
+        font-weight: 650;
+    }
+
+    .optional-label {
+        margin-left: 5px;
+        color: #8ca0a7;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .request-form .form-control {
+        min-height: 54px;
+        border: 1px solid #dce5e8;
+        border-radius: 11px;
+        background: #fcfeff;
+    }
+
+    .request-form textarea.form-control {
+        min-height: 145px;
+        resize: vertical;
+    }
+
+    .request-form .form-control:focus {
+        border-color: #65bdd5;
+        box-shadow: 0 0 0 4px rgba(101, 189, 213, 0.15);
+    }
+
+    .information-panel {
+        height: 100%;
+        padding: 45px 38px;
+        background: #eaf8fc;
+    }
+
+    .information-icon {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: #65bdd5;
+        border-radius: 16px;
+        font-size: 23px;
+        font-weight: 800;
+    }
+
+    .information-panel h2 {
+        margin-bottom: 12px;
+        color: #285866;
+        font-size: 24px;
+        font-weight: 750;
+    }
+
+    .information-panel > p {
+        margin-bottom: 28px;
+        color: #638690;
+        line-height: 1.7;
+    }
+
+    .information-item {
+        display: flex;
+        gap: 13px;
+        margin-bottom: 22px;
+    }
+
+    .information-number {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #4399b2;
+        background: #ffffff;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .information-item strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #345e6a;
+        font-size: 14px;
+    }
+
+    .information-item span {
+        color: #73949d;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .status-notice {
+        margin-bottom: 25px;
+        padding: 14px 16px;
+        color: #537881;
+        background: #f0fafc;
+        border: 1px solid #d5edf3;
+        border-radius: 11px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .submit-button {
+        min-height: 52px;
+        padding: 0 25px;
+        color: #ffffff;
+        background: #65bdd5;
+        border: 0;
+        border-radius: 11px;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .submit-button:hover {
+        color: #ffffff;
+        background: #50a9c2;
+        transform: translateY(-1px);
+    }
+
+    .cancel-button {
+        min-height: 52px;
+        padding: 0 25px;
+        display: inline-flex;
+        align-items: center;
+        color: #5e747b;
+        background: #ffffff;
+        border: 1px solid #d4e1e5;
+        border-radius: 11px;
+        font-weight: 650;
+        text-decoration: none;
+    }
+
+    .cancel-button:hover {
+        color: #344e56;
+        background: #f4f9fa;
+    }
+
+    @@media (max-width: 576px) {
+        .request-page {
+            padding: 30px 14px;
+        }
+
+        .request-form,
+        .information-panel {
+            padding: 30px 24px;
+        }
+
+        .d-flex.gap-3 {
+            flex-direction: column;
+        }
+
+        .submit-button,
+        .cancel-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="request-page">
+    <div class="request-container">
+        <div class="page-heading">
+            <div class="page-label">IT Service Desk</div>
+
+            <h1>Create a service request</h1>
+
+            <p>
+                Tell us about the technical issue you are experiencing.
+            </p>
+        </div>
+
+        <div class="request-shell">
+            <div class="row g-0">
+                <div class="col-lg-8">
+                    <div class="request-form">
+                        <div class="status-notice">
+                            New requests begin with
+                            <strong>Medium</strong> priority and
+                            <strong>New</strong> status. An administrator
+                            can update them after reviewing the issue.
+                        </div>
+
+                        <form asp-action="Create" method="post">
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3">
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="RequesterName"
+                                       class="form-label">
+                                    Requester name
+                                </label>
+
+                                <input asp-for="RequesterName"
+                                       class="form-control"
+                                       placeholder="Enter your full name" />
+
+                                <span asp-validation-for="RequesterName"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Department"
+                                       class="form-label">
+                                    Department
+                                </label>
+
+                                <input asp-for="Department"
+                                       class="form-control"
+                                       placeholder="Enter your department" />
+
+                                <span asp-validation-for="Department"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ContactNumber"
+                                       class="form-label">
+                                    Contact number
+                                    <span class="optional-label">
+                                        Optional
+                                    </span>
+                                </label>
+
+                                <input asp-for="ContactNumber"
+                                       class="form-control"
+                                       type="tel"
+                                       autocomplete="tel"
+                                       placeholder="Office phone or mobile number" />
+
+                                <span asp-validation-for="ContactNumber"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Title"
+                                       class="form-label">
+                                    Issue title
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       placeholder="Briefly describe the issue" />
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Description"
+                                       class="form-label">
+                                    Description
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          placeholder="Provide details about the issue and any error messages you received"></textarea>
+
+                                <span asp-validation-for="Description"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <button type="submit"
+                                        class="submit-button">
+                                    Submit request
+                                </button>
+
+                                <a asp-action="Index"
+                                   class="cancel-button">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Department"
-                               class="form-label">
-                            Department
-                        </label>
+                <div class="col-lg-4">
+                    <aside class="information-panel">
+                        <div class="information-icon">?</div>
 
-                        <input asp-for="Department"
-                               class="form-control" />
+                        <h2>Before you submit</h2>
 
-                        <span asp-validation-for="Department"
-                              class="text-danger"></span>
-                    </div>
+                        <p>
+                            Clear information helps the technical team
+                            understand and resolve your issue faster.
+                        </p>
 
-                    <div class="mb-3">
-                        <label asp-for="Title"
-                               class="form-label">
-                            Issue Title
-                        </label>
+                        <div class="information-item">
+                            <span class="information-number">1</span>
 
-                        <input asp-for="Title"
-                               class="form-control" />
+                            <div>
+                                <strong>Use a clear title</strong>
 
-                        <span asp-validation-for="Title"
-                              class="text-danger"></span>
-                    </div>
+                                <span>
+                                    Summarize the main problem in a few words.
+                                </span>
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Description"
-                               class="form-label">
-                            Description
-                        </label>
+                        <div class="information-item">
+                            <span class="information-number">2</span>
 
-                        <textarea asp-for="Description"
-                                  class="form-control"
-                                  rows="4"></textarea>
+                            <div>
+                                <strong>Add useful details</strong>
 
-                        <span asp-validation-for="Description"
-                              class="text-danger"></span>
-                    </div>
+                                <span>
+                                    Explain what happened and when it started.
+                                </span>
+                            </div>
+                        </div>
 
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Submit Request
-                    </button>
+                        <div class="information-item">
+                            <span class="information-number">3</span>
 
-                    <a asp-action="Index"
-                       class="btn btn-outline-secondary">
-                        Cancel
-                    </a>
-                </form>
+                            <div>
+                                <strong>Add contact information</strong>
+
+                                <span>
+                                    Add an office or mobile number if direct
+                                    contact may help resolve the issue.
+                                </span>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </div>
         </div>
     </div>

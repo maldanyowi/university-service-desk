@@ -1,64 +1,386 @@
 ﻿@page
 @model RegisterModel
+
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    .register-page {
+        min-height: 78vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 20px;
+        background: #f5fbfd;
+    }
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+    .register-shell {
+        width: 100%;
+        max-width: 1080px;
+        overflow: hidden;
+        border: 1px solid #dceef3;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 22px 55px rgba(54, 116, 134, 0.13);
+    }
+
+    .visual-panel {
+        min-height: 690px;
+        padding: 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #eaf8fc;
+    }
+
+    .brand-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 38px;
+    }
+
+    .brand-logo {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background: #65bdd5;
+        color: #ffffff;
+        font-size: 23px;
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgba(80, 168, 193, 0.22);
+    }
+
+    .brand-text strong {
+        display: block;
+        color: #285866;
+        font-size: 15px;
+        letter-spacing: 0.7px;
+    }
+
+    .brand-text span {
+        color: #6d929d;
+        font-size: 12px;
+    }
+
+    .visual-panel h2 {
+        margin-bottom: 14px;
+        color: #285866;
+        font-size: 28px;
+        font-weight: 750;
+    }
+
+    .visual-description {
+        margin-bottom: 30px;
+        color: #638690;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .technology-visual {
+        width: 100%;
+        padding: 20px;
+        border: 1px solid rgba(101, 189, 213, 0.22);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.55);
+    }
+
+    .technology-visual svg {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .form-panel {
+        min-height: 690px;
+        padding: 55px 70px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .form-label-small {
+        margin-bottom: 10px;
+        color: #65aabd;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+
+    .form-panel h1 {
+        margin-bottom: 8px;
+        color: #263b42;
+        font-size: 38px;
+        font-weight: 750;
+    }
+
+    .form-subtitle {
+        margin-bottom: 28px;
+        color: #7b8c91;
+    }
+
+    .form-panel .form-control {
+        min-height: 57px;
+        border: 1px solid #dce5e8;
+        border-radius: 12px;
+        background: #fcfeff;
+    }
+
+    .form-panel .form-control:focus {
+        border-color: #65bdd5;
+        box-shadow: 0 0 0 4px rgba(101, 189, 213, 0.15);
+    }
+
+    .create-button {
+        min-height: 54px;
+        border: 0;
+        border-radius: 12px;
+        background: #65bdd5;
+        color: #ffffff;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .create-button:hover {
+        background: #50a9c2;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .form-panel a {
+        color: #4399b2;
+        text-decoration: none;
+    }
+
+    .form-panel a:hover {
+        color: #28758b;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="register-page">
+    <div class="register-shell">
+        <div class="row g-0">
+
+            <div class="col-lg-5 d-none d-lg-flex">
+                <section class="visual-panel w-100">
+
+                    <div class="brand-row">
+                        <div class="brand-logo">M</div>
+
+                        <div class="brand-text">
+                            <strong>MARWAH</strong>
+                            <span>University Service Desk</span>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
+
+                    <h2>Join the IT Service Desk</h2>
+
+                    <p class="visual-description">
+                        Create your account to submit technical support
+                        requests and follow their progress until resolution.
+                    </p>
+
+                    <div class="technology-visual">
+                        <svg viewBox="0 0 480 320"
+                             xmlns="http://www.w3.org/2000/svg"
+                             aria-label="Secure account illustration">
+
+                            <circle cx="84" cy="74" r="48"
+                                    fill="#d6f1f8" />
+
+                            <circle cx="407" cy="245" r="52"
+                                    fill="#dff4f8" />
+
+                            <path d="M53 231 C115 180, 163 268, 225 218
+                                     S342 157, 427 206"
+                                  fill="none"
+                                  stroke="#b9e2ec"
+                                  stroke-width="3"
+                                  stroke-dasharray="7 8" />
+
+                            <rect x="88" y="55"
+                                  width="304"
+                                  height="197"
+                                  rx="18"
+                                  fill="#304f59" />
+
+                            <rect x="102" y="69"
+                                  width="276"
+                                  height="168"
+                                  rx="10"
+                                  fill="#ffffff" />
+
+                            <rect x="102" y="69"
+                                  width="276"
+                                  height="32"
+                                  rx="10"
+                                  fill="#ccebf3" />
+
+                            <circle cx="123" cy="85" r="5"
+                                    fill="#65bdd5" />
+
+                            <circle cx="140" cy="85" r="5"
+                                    fill="#8ed0e1" />
+
+                            <circle cx="157" cy="85" r="5"
+                                    fill="#abdce8" />
+
+                            <circle cx="240" cy="144" r="37"
+                                    fill="#eaf8fc" />
+
+                            <circle cx="240" cy="133" r="14"
+                                    fill="#65bdd5" />
+
+                            <path d="M211 185
+                                     C215 158 227 150 240 150
+                                     C253 150 265 158 269 185 Z"
+                                  fill="#65bdd5" />
+
+                            <rect x="187" y="196"
+                                  width="106"
+                                  height="11"
+                                  rx="5"
+                                  fill="#c7dfe5" />
+
+                            <path d="M66 252 H414
+                                     L449 276
+                                     Q453 281 443 284
+                                     H37
+                                     Q27 281 31 276 Z"
+                                  fill="#40636e" />
+
+                            <rect x="184" y="259"
+                                  width="112"
+                                  height="9"
+                                  rx="4"
+                                  fill="#b8dce5" />
+
+                            <g transform="translate(326 175)">
+                                <path d="M42 0
+                                         L78 14
+                                         V45
+                                         C78 72 62 91 42 101
+                                         C22 91 6 72 6 45
+                                         V14 Z"
+                                      fill="#65bdd5" />
+
+                                <path d="M42 12
+                                         L66 21
+                                         V44
+                                         C66 62 56 75 42 83
+                                         C28 75 18 62 18 44
+                                         V21 Z"
+                                      fill="#eaf8fc" />
+
+                                <path d="M30 46
+                                         L39 55
+                                         L56 35"
+                                      fill="none"
+                                      stroke="#4399b2"
+                                      stroke-width="7"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round" />
+                            </g>
+
+                        </svg>
+                    </div>
+
+                </section>
+            </div>
+
+            <div class="col-lg-7">
+                <section class="form-panel">
+
+                    <div class="form-label-small">New account</div>
+
+                    <h1>Create account</h1>
+
+                    <p class="form-subtitle">
+                        Enter your details to access the university service desk.
+                    </p>
+
+                    <form id="registerForm"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3"
+                             role="alert">
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email"
+                                   class="form-control"
+                                   autocomplete="username"
+                                   placeholder="name@example.com" />
+
+                            <label asp-for="Input.Email">
+                                Email address
+                            </label>
+
+                            <span asp-validation-for="Input.Email"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password"
+                                   class="form-control"
+                                   autocomplete="new-password"
+                                   placeholder="Password" />
+
+                            <label asp-for="Input.Password">
+                                Password
+                            </label>
+
+                            <span asp-validation-for="Input.Password"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="Input.ConfirmPassword"
+                                   class="form-control"
+                                   autocomplete="new-password"
+                                   placeholder="Confirm password" />
+
+                            <label asp-for="Input.ConfirmPassword">
+                                Confirm password
+                            </label>
+
+                            <span asp-validation-for="Input.ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <button id="registerSubmit"
+                                type="submit"
+                                class="create-button w-100">
+                            Create account
+                        </button>
+
+                        <div class="text-center mt-4">
+                            <p class="mb-0">
+                                Already have an account?
+                                <a asp-page="./Login"
+                                   asp-route-returnUrl="@Model.ReturnUrl"
+                                   class="fw-semibold">
+                                    Sign in
+                                </a>
                             </p>
                         </div>
+
                     </form>
-                }
-            }
-        </section>
+                </section>
+            </div>
+
+        </div>
     </div>
 </div>
 

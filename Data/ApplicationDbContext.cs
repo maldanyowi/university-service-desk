@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UniversityServiceDesk.Models;
@@ -6,7 +5,7 @@ using UniversityServiceDesk.Models;
 namespace UniversityServiceDesk.Data;
 
 public class ApplicationDbContext
-    : IdentityDbContext<IdentityUser>
+    : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options)
@@ -16,4 +15,3 @@ public class ApplicationDbContext
 
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
 }
-

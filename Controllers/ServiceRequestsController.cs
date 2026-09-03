@@ -11,11 +11,11 @@ namespace UniversityServiceDesk.Controllers;
 public class ServiceRequestsController : Controller
 {
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public ServiceRequestsController(
         ApplicationDbContext context,
-        UserManager<IdentityUser> userManager)
+        UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _userManager = userManager;
@@ -43,7 +43,9 @@ public class ServiceRequestsController : Controller
             requests = requests.Where(request =>
                 request.RequesterName.Contains(searchString) ||
                 request.Department.Contains(searchString) ||
-                request.Title.Contains(searchString));
+                request.Title.Contains(searchString) ||
+                (request.ContactNumber != null &&
+                 request.ContactNumber.Contains(searchString)));
         }
 
         if (!string.IsNullOrWhiteSpace(status))
@@ -52,9 +54,11 @@ public class ServiceRequestsController : Controller
                 request => request.Status == status);
         }
 
-        return View(await requests
-            .OrderByDescending(request => request.CreatedAt)
-            .ToListAsync());
+        return View(
+            await requests
+                .OrderByDescending(
+                    request => request.CreatedAt)
+                .ToListAsync());
     }
 
     public async Task<IActionResult> Details(int? id)
@@ -90,7 +94,8 @@ public class ServiceRequestsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [Bind("RequesterName,Department,Title,Description")]
+        [Bind(
+            "RequesterName,Department,ContactNumber,Title,Description")]
         ServiceRequest serviceRequest)
     {
         if (ModelState.IsValid)
@@ -156,6 +161,9 @@ public class ServiceRequestsController : Controller
 
             existingRequest.Department =
                 serviceRequest.Department;
+
+            existingRequest.ContactNumber =
+                serviceRequest.ContactNumber;
 
             existingRequest.Title =
                 serviceRequest.Title;

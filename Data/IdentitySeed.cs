@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using UniversityServiceDesk.Models;
 
 namespace UniversityServiceDesk.Data;
 
@@ -12,7 +13,7 @@ public static class IdentitySeed
             services.GetRequiredService<RoleManager<IdentityRole>>();
 
         var userManager =
-            services.GetRequiredService<UserManager<IdentityUser>>();
+            services.GetRequiredService<UserManager<ApplicationUser>>();
 
         string[] roles =
         {
@@ -35,41 +36,69 @@ public static class IdentitySeed
         var technicianPassword =
             configuration["TechnicianAccount:Password"];
 
-        if (string.IsNullOrWhiteSpace(technicianEmail) ||
-            string.IsNullOrWhiteSpace(technicianPassword))
+        if (!string.IsNullOrWhiteSpace(technicianEmail) &&
+            !string.IsNullOrWhiteSpace(technicianPassword))
         {
-            return;
-        }
+            var technician =
+                await userManager.FindByEmailAsync(technicianEmail);
 
-        var technician =
-            await userManager.FindByEmailAsync(technicianEmail);
-
-        if (technician == null)
-        {
-            technician = new IdentityUser
+            if (technician == null)
             {
-                UserName = technicianEmail,
-                Email = technicianEmail,
-                EmailConfirmed = true
-            };
+                technician = new ApplicationUser
+                {
+                    FullName = "Administrator",
+                    UserName = technicianEmail,
+                    Email = technicianEmail,
+                    EmailConfirmed = true
+                };
 
-            var result = await userManager.CreateAsync(
-                technician,
-                technicianPassword);
+                var result = await userManager.CreateAsync(
+                    technician,
+                    technicianPassword);
 
-            if (!result.Succeeded)
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(
+                        technician,
+                        "Technician");
+                }
+            }
+            else
             {
-                return;
+                technician.FullName = "Administrator";
+                technician.EmailConfirmed = true;
+
+                await userManager.UpdateAsync(technician);
+
+                if (!await userManager.IsInRoleAsync(
+                        technician,
+                        "Technician"))
+                {
+                    await userManager.AddToRoleAsync(
+                        technician,
+                        "Technician");
+                }
             }
         }
 
-        if (!await userManager.IsInRoleAsync(
-                technician,
-                "Technician"))
+        var requester =
+            await userManager.FindByEmailAsync(
+                "requester@university.local");
+
+        if (requester != null)
         {
-            await userManager.AddToRoleAsync(
-                technician,
-                "Technician");
+            requester.FullName = "Nora Alharbi";
+
+            await userManager.UpdateAsync(requester);
+
+            if (!await userManager.IsInRoleAsync(
+                    requester,
+                    "Requester"))
+            {
+                await userManager.AddToRoleAsync(
+                    requester,
+                    "Requester");
+            }
         }
     }
 }

@@ -1,167 +1,466 @@
 @model IEnumerable<UniversityServiceDesk.Models.ServiceRequest>
-@using System.Globalization
 
 @{
-    ViewData["Title"] = "Service Requests";
+    ViewData["Title"] = "Dashboard";
 
-    var totalRequests = Model.Count();
-    var newRequests =
-        Model.Count(request => request.Status == "New");
+    var requests = Model.ToList();
 
-    var inProgressRequests =
-        Model.Count(request => request.Status == "In Progress");
+    var totalRequests = requests.Count;
 
-    var completedRequests =
-        Model.Count(request => request.Status == "Completed");
+    var newRequests = requests.Count(request =>
+        request.Status == "New");
+
+    var inProgressRequests = requests.Count(request =>
+        request.Status == "In Progress");
+
+    var completedRequests = requests.Count(request =>
+        request.Status == "Completed" ||
+        request.Status == "Complete");
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1>IT Service Requests</h1>
-        <p class="text-muted">
-            Manage and track university technical support requests.
-        </p>
-    </div>
+<style>
+    .dashboard-page {
+        padding: 55px 0 70px;
+    }
 
-    <a asp-action="Create"
-       class="btn btn-primary">
-        Create New Request
-    </a>
-</div>
+    .dashboard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        margin-bottom: 38px;
+    }
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Total Requests</h6>
-                <h2>@totalRequests</h2>
-            </div>
-        </div>
-    </div>
+    .dashboard-title {
+        margin: 0;
+        color: #173947;
+        font-size: clamp(34px, 5vw, 52px);
+        font-weight: 800;
+        letter-spacing: -1.5px;
+    }
 
-    <div class="col-md-3">
-        <div class="card shadow-sm border-primary">
-            <div class="card-body">
-                <h6>New</h6>
-                <h2 class="text-primary">@newRequests</h2>
-            </div>
-        </div>
-    </div>
+    .dashboard-description {
+        margin: 10px 0 0;
+        color: #6b7f88;
+        font-size: 17px;
+    }
 
-    <div class="col-md-3">
-        <div class="card shadow-sm border-warning">
-            <div class="card-body">
-                <h6>In Progress</h6>
-                <h2 class="text-warning">
-                    @inProgressRequests
-                </h2>
-            </div>
-        </div>
-    </div>
+    .create-request-button {
+        flex-shrink: 0;
+        padding: 13px 22px;
+        color: white;
+        background: #43a7c5;
+        border: 1px solid #43a7c5;
+        border-radius: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(67, 167, 197, 0.20);
+        transition: 0.2s ease;
+    }
 
-    <div class="col-md-3">
-        <div class="card shadow-sm border-success">
-            <div class="card-body">
-                <h6>Completed</h6>
-                <h2 class="text-success">
-                    @completedRequests
-                </h2>
-            </div>
-        </div>
-    </div>
-</div>
+    .create-request-button:hover {
+        color: white;
+        background: #348fa9;
+        border-color: #348fa9;
+        transform: translateY(-1px);
+    }
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        @if (!Model.Any())
-        {
-            <div class="alert alert-info mb-0">
-                No service requests were found.
-            </div>
+    .statistics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .statistic-card {
+        position: relative;
+        overflow: hidden;
+        padding: 23px;
+        background: white;
+        border: 1px solid #dce9ed;
+        border-radius: 15px;
+        box-shadow: 0 7px 20px rgba(31, 76, 91, 0.06);
+    }
+
+    .statistic-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #9db2ba;
+    }
+
+    .statistic-card.new-card::before {
+        background: #45a9d0;
+    }
+
+    .statistic-card.progress-card::before {
+        background: #e3aa45;
+    }
+
+    .statistic-card.completed-card::before {
+        background: #58a982;
+    }
+
+    .statistic-label {
+        margin: 0 0 12px;
+        color: #6e8189;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .statistic-number {
+        margin: 0;
+        color: #173947;
+        font-size: 38px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .requests-panel {
+        padding: 20px;
+        overflow: hidden;
+        background: white;
+        border: 1px solid #dce9ed;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(31, 76, 91, 0.07);
+    }
+
+    .requests-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+    .requests-table th {
+        padding: 16px 13px;
+        color: #42616d;
+        background: #eef8fb;
+        border-bottom: 1px solid #d7e8ed;
+        font-size: 13px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .requests-table td {
+        padding: 17px 13px;
+        color: #263b44;
+        border-bottom: 1px solid #e3ecef;
+        vertical-align: middle;
+    }
+
+    .requests-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .requests-table tbody tr {
+        transition: 0.2s ease;
+    }
+
+    .requests-table tbody tr:hover {
+        background: #f8fcfd;
+    }
+
+    .requester-name {
+        color: #173947;
+        font-weight: 700;
+    }
+
+    .issue-title {
+        max-width: 310px;
+        font-weight: 650;
+    }
+
+    .badge-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .priority-high {
+        color: #a33e4b;
+        background: #fdebed;
+    }
+
+    .priority-medium {
+        color: #936c17;
+        background: #fff4d8;
+    }
+
+    .priority-low {
+        color: #367b62;
+        background: #e6f5ee;
+    }
+
+    .status-new {
+        color: #28779b;
+        background: #e3f4fa;
+    }
+
+    .status-progress {
+        color: #8c671d;
+        background: #fff3d6;
+    }
+
+    .status-completed {
+        color: #32775a;
+        background: #e3f3eb;
+    }
+
+    .action-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .action-button {
+        padding: 7px 11px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .details-button {
+        color: #2786a3;
+        background: #edf8fb;
+        border: 1px solid #b9e0eb;
+    }
+
+    .edit-button {
+        color: #7a651f;
+        background: #fff7df;
+        border: 1px solid #eddaa0;
+    }
+
+    .delete-button {
+        color: #a4424d;
+        background: #fff0f1;
+        border: 1px solid #efc3c8;
+    }
+
+    .action-button:hover {
+        color: inherit;
+        filter: brightness(0.97);
+        transform: translateY(-1px);
+    }
+
+    .empty-state {
+        padding: 65px 25px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3c9fbd;
+        background: #e9f7fa;
+        border-radius: 20px;
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    .empty-state h2 {
+        margin: 0 0 8px;
+        color: #173947;
+        font-size: 22px;
+        font-weight: 750;
+    }
+
+    .empty-state p {
+        margin: 0;
+        color: #748991;
+    }
+
+    @@media (max-width: 992px) {
+        .statistics-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Requester</th>
-                            <th>Department</th>
-                            <th>Issue</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                    @foreach (var item in Model)
-                    {
-                        var priorityClass = item.Priority switch
-                        {
-                            "High" => "bg-danger",
-                            "Medium" => "bg-warning text-dark",
-                            _ => "bg-secondary"
-                        };
+        .requests-panel {
+            overflow-x: auto;
+        }
 
-                        var statusClass = item.Status switch
-                        {
-                            "Completed" => "bg-success",
-                            "In Progress" => "bg-warning text-dark",
-                            _ => "bg-primary"
-                        };
+        .requests-table {
+            min-width: 950px;
+        }
+    }
 
-                        <tr>
-                            <td>@item.RequesterName</td>
-                            <td>@item.Department</td>
-                            <td>@item.Title</td>
+    @@media (max-width: 650px) {
+        .dashboard-page {
+            padding-top: 35px;
+        }
 
-                            <td>
-                                <span class="badge @priorityClass">
-                                    @item.Priority
-                                </span>
-                            </td>
+        .dashboard-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
 
-                            <td>
-                                <span class="badge @statusClass">
-                                    @item.Status
-                                </span>
-                            </td>
+        .statistics-grid {
+            grid-template-columns: 1fr;
+        }
 
-                            <td>
-                                @item.CreatedAt.ToString(
-                                    "dd MMM yyyy, hh:mm tt",
-                                    CultureInfo.InvariantCulture)
-                            </td>
+        .create-request-button {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
 
-                            <td>
-                                <a asp-action="Details"
-                                   asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-outline-info">
-                                    Details
-                                </a>
+<section class="dashboard-page">
+    <div class="container-fluid px-4 px-lg-5">
+        <header class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">IT Service Requests</h1>
 
-                                @if (User.IsInRole("Technician"))
+                <p class="dashboard-description">
+                    Manage and track university technical support requests.
+                </p>
+            </div>
+
+            @if (User.IsInRole("Requester"))
+            {
+                <a asp-action="Create"
+                   class="create-request-button">
+                    Create New Request
+                </a>
+            }
+        </header>
+
+        <section class="statistics-grid">
+            <article class="statistic-card">
+                <p class="statistic-label">Total Requests</p>
+                <p class="statistic-number">@totalRequests</p>
+            </article>
+
+            <article class="statistic-card new-card">
+                <p class="statistic-label">New</p>
+                <p class="statistic-number">@newRequests</p>
+            </article>
+
+            <article class="statistic-card progress-card">
+                <p class="statistic-label">In Progress</p>
+                <p class="statistic-number">@inProgressRequests</p>
+            </article>
+
+            <article class="statistic-card completed-card">
+                <p class="statistic-label">Completed</p>
+                <p class="statistic-number">@completedRequests</p>
+            </article>
+        </section>
+
+        <section class="requests-panel">
+            @if (requests.Any())
+            {
+                <div class="table-responsive">
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>Requester</th>
+                                <th>Department</th>
+                                <th>Issue</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var request in requests)
+                            {
+                                var priorityClass = request.Priority switch
                                 {
-                                    <a asp-action="Edit"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-sm btn-outline-primary">
-                                        Edit
-                                    </a>
+                                    "High" => "priority-high",
+                                    "Low" => "priority-low",
+                                    _ => "priority-medium"
+                                };
 
-                                    <a asp-action="Delete"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-sm btn-outline-danger">
-                                        Delete
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        }
+                                var statusClass = request.Status switch
+                                {
+                                    "In Progress" => "status-progress",
+                                    "Completed" => "status-completed",
+                                    "Complete" => "status-completed",
+                                    _ => "status-new"
+                                };
+
+                                <tr>
+                                    <td class="requester-name">
+                                        @request.RequesterName
+                                    </td>
+
+                                    <td>@request.Department</td>
+
+                                    <td class="issue-title">
+                                        @request.Title
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-item @priorityClass">
+                                            @request.Priority
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-item @statusClass">
+                                            @request.Status
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @request.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+                                    </td>
+
+                                    <td>
+                                        <div class="action-links">
+                                            <a asp-action="Details"
+                                               asp-route-id="@request.Id"
+                                               class="action-button details-button">
+                                                Details
+                                            </a>
+
+                                            @if (User.IsInRole("Technician"))
+                                            {
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@request.Id"
+                                                   class="action-button edit-button">
+                                                    Edit
+                                                </a>
+
+                                                <a asp-action="Delete"
+                                                   asp-route-id="@request.Id"
+                                                   class="action-button delete-button">
+                                                    Delete
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">✓</div>
+                    <h2>No service requests found</h2>
+                    <p>Your service requests will appear here.</p>
+                </div>
+            }
+        </section>
     </div>
-</div>
+</section>

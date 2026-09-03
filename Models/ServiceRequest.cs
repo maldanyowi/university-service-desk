@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 
 namespace UniversityServiceDesk.Models;
 
@@ -14,6 +13,11 @@ public class ServiceRequest
     [Required(ErrorMessage = "Department is required")]
     [StringLength(100)]
     public string Department { get; set; } = string.Empty;
+
+    [Phone(ErrorMessage = "Enter a valid contact number")]
+    [StringLength(30)]
+    [Display(Name = "Contact Number")]
+    public string? ContactNumber { get; set; }
 
     [Required(ErrorMessage = "Issue title is required")]
     [StringLength(150)]
@@ -31,5 +35,5 @@ public class ServiceRequest
 
     public string? UserId { get; set; }
 
-    public IdentityUser? User { get; set; }
+    public ApplicationUser? User { get; set; }
 }

@@ -1,89 +1,373 @@
 @model UniversityServiceDesk.Models.ServiceRequest
 
 @{
-    ViewData["Title"] = "Edit Service Request";
+    ViewData["Title"] = "Update Request";
 }
 
-<h1>Edit Service Request</h1>
-<hr />
+<style>
+    .edit-page {
+        min-height: 78vh;
+        padding: 48px 20px;
+        background: #f5fbfd;
+    }
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger"></div>
+    .edit-container {
+        width: 100%;
+        max-width: 1050px;
+        margin: 0 auto;
+    }
 
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="CreatedAt" />
+    .page-heading {
+        margin-bottom: 28px;
+    }
 
-            <div class="mb-3">
-                <label asp-for="RequesterName"
-                       class="form-label">Requester Name</label>
-                <input asp-for="RequesterName"
-                       class="form-control" />
-                <span asp-validation-for="RequesterName"
-                      class="text-danger"></span>
+    .page-label {
+        margin-bottom: 8px;
+        color: #65aabd;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+
+    .page-heading h1 {
+        margin-bottom: 8px;
+        color: #263b42;
+        font-size: 38px;
+        font-weight: 750;
+    }
+
+    .page-heading p {
+        margin: 0;
+        color: #74898f;
+        font-size: 16px;
+    }
+
+    .edit-shell {
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #dceef3;
+        border-radius: 22px;
+        box-shadow: 0 18px 45px rgba(54, 116, 134, 0.11);
+    }
+
+    .request-information {
+        height: 100%;
+        padding: 42px;
+        background: #eaf8fc;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: #65bdd5;
+        border-radius: 15px;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .request-information h2,
+    .workflow-form h2 {
+        margin-bottom: 8px;
+        color: #285866;
+        font-size: 23px;
+        font-weight: 750;
+    }
+
+    .section-description {
+        margin-bottom: 26px;
+        color: #6f8f98;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .information-group {
+        margin-bottom: 20px;
+    }
+
+    .information-group label {
+        display: block;
+        margin-bottom: 6px;
+        color: #66848d;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+    }
+
+    .information-value {
+        padding: 13px 15px;
+        color: #304b54;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid #d5eaf0;
+        border-radius: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .empty-value {
+        color: #8b9da3;
+        font-style: italic;
+    }
+
+    .workflow-form {
+        padding: 42px;
+    }
+
+    .workflow-form .form-label {
+        margin-bottom: 8px;
+        color: #344b53;
+        font-weight: 650;
+    }
+
+    .workflow-form .form-select {
+        min-height: 55px;
+        background-color: #fcfeff;
+        border: 1px solid #dce5e8;
+        border-radius: 11px;
+    }
+
+    .workflow-form .form-select:focus {
+        border-color: #65bdd5;
+        box-shadow: 0 0 0 4px rgba(101, 189, 213, 0.15);
+    }
+
+    .workflow-note {
+        margin: 25px 0;
+        padding: 15px 16px;
+        color: #537881;
+        background: #f0fafc;
+        border: 1px solid #d5edf3;
+        border-radius: 11px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .save-button {
+        min-height: 52px;
+        padding: 0 25px;
+        color: #ffffff;
+        background: #65bdd5;
+        border: 0;
+        border-radius: 11px;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .save-button:hover {
+        color: #ffffff;
+        background: #50a9c2;
+        transform: translateY(-1px);
+    }
+
+    .cancel-button {
+        min-height: 52px;
+        padding: 0 25px;
+        display: inline-flex;
+        align-items: center;
+        color: #5e747b;
+        background: #ffffff;
+        border: 1px solid #d4e1e5;
+        border-radius: 11px;
+        font-weight: 650;
+        text-decoration: none;
+    }
+
+    .cancel-button:hover {
+        color: #344e56;
+        background: #f4f9fa;
+    }
+
+    @@media (max-width: 700px) {
+        .edit-page {
+            padding: 30px 14px;
+        }
+
+        .request-information,
+        .workflow-form {
+            padding: 30px 24px;
+        }
+
+        .d-flex.gap-3 {
+            flex-direction: column;
+        }
+
+        .save-button,
+        .cancel-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="edit-page">
+    <div class="edit-container">
+        <div class="page-heading">
+            <div class="page-label">
+                Administrator workspace
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Department"
-                       class="form-label"></label>
-                <input asp-for="Department"
-                       class="form-control" />
-                <span asp-validation-for="Department"
-                      class="text-danger"></span>
+            <h1>Update service request</h1>
+
+            <p>
+                Review the issue and update its priority and progress.
+            </p>
+        </div>
+
+        <form asp-action="Edit" method="post">
+            <div class="edit-shell">
+                <div class="row g-0">
+                    <div class="col-lg-7">
+                        <section class="request-information">
+                            <div class="section-icon">
+                                #@Model.Id
+                            </div>
+
+                            <h2>Request information</h2>
+
+                            <p class="section-description">
+                                Information submitted by the requester.
+                            </p>
+
+                            <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="CreatedAt" />
+                            <input type="hidden" asp-for="RequesterName" />
+                            <input type="hidden" asp-for="Department" />
+                            <input type="hidden" asp-for="ContactNumber" />
+                            <input type="hidden" asp-for="Title" />
+                            <input type="hidden" asp-for="Description" />
+
+                            <div class="information-group">
+                                <label>Requester</label>
+
+                                <div class="information-value">
+                                    @Model.RequesterName
+                                </div>
+                            </div>
+
+                            <div class="information-group">
+                                <label>Department</label>
+
+                                <div class="information-value">
+                                    @Model.Department
+                                </div>
+                            </div>
+
+                            <div class="information-group">
+                                <label>Contact number</label>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    Model.ContactNumber))
+                                {
+                                    <div class="information-value">
+                                        @Model.ContactNumber
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="information-value empty-value">
+                                        Not provided
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="information-group">
+                                <label>Issue title</label>
+
+                                <div class="information-value">
+                                    @Model.Title
+                                </div>
+                            </div>
+
+                            <div class="information-group mb-0">
+                                <label>Description</label>
+
+                                <div class="information-value">
+                                    @Model.Description
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <section class="workflow-form">
+                            <h2>Request workflow</h2>
+
+                            <p class="section-description">
+                                Set the urgency and current status
+                                of the request.
+                            </p>
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3">
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Priority"
+                                       class="form-label">
+                                    Priority
+                                </label>
+
+                                <select asp-for="Priority"
+                                        class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+
+                                <span asp-validation-for="Priority"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Status"
+                                       class="form-label">
+                                    Status
+                                </label>
+
+                                <select asp-for="Status"
+                                        class="form-select">
+                                    <option value="New">New</option>
+                                    <option value="In Progress">
+                                        In Progress
+                                    </option>
+                                    <option value="Completed">
+                                        Completed
+                                    </option>
+                                </select>
+
+                                <span asp-validation-for="Status"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="workflow-note">
+                                Use <strong>In Progress</strong> when work
+                                begins, and <strong>Completed</strong> after
+                                the issue has been resolved.
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <button type="submit"
+                                        class="save-button">
+                                    Save changes
+                                </button>
+
+                                <a asp-action="Index"
+                                   class="cancel-button">
+                                    Cancel
+                                </a>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Title"
-                       class="form-label">Issue Title</label>
-                <input asp-for="Title"
-                       class="form-control" />
-                <span asp-validation-for="Title"
-                      class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Description"
-                       class="form-label"></label>
-                <textarea asp-for="Description"
-                          class="form-control"
-                          rows="4"></textarea>
-                <span asp-validation-for="Description"
-                      class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Priority"
-                       class="form-label"></label>
-                <select asp-for="Priority"
-                        class="form-select">
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Status"
-                       class="form-label"></label>
-                <select asp-for="Status"
-                        class="form-select">
-                    <option value="New">New</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-
-            <button type="submit"
-                    class="btn btn-primary">Save Changes</button>
-
-            <a asp-action="Index"
-               class="btn btn-secondary">Cancel</a>
         </form>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
