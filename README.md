@@ -8,6 +8,38 @@ I built this project to apply what I learned in C#, ASP.NET Core MVC, databases,
 
 The system provides an organized way for university users to report technical issues and follow their requests until they are resolved. It includes two user roles, Requester and Technician, with different permissions based on their responsibilities.
 
+## Application Preview
+
+### Welcome Screen
+
+![Welcome Screen](screenshots/01-welcome-screen.png)
+
+### Public Landing Page
+
+![Public Landing Page](screenshots/02-public-landing-page.png)
+
+### Account Access
+
+| Sign In | Create Account |
+|---|---|
+| ![Sign In Page](screenshots/03-sign-in-page.png) | ![Register Page](screenshots/04-register-page.png) |
+
+### Requester Experience
+
+| Requester Dashboard | Create Request |
+|---|---|
+| ![Requester Dashboard](screenshots/05-requester-dashboard.png) | ![Create Request](screenshots/06-create-request.png) |
+
+### Request Details
+
+![Request Details](screenshots/07-request-details.png)
+
+### Administrator Experience
+
+| Administrator Dashboard | Update Request |
+|---|---|
+| ![Administrator Dashboard](screenshots/08-administrator-dashboard.png) | ![Update Request](screenshots/09-update-request.png) |
+
 ## User Roles
 
 ### Requester

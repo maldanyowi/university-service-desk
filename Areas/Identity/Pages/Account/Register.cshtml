@@ -26,7 +26,7 @@
     }
 
     .visual-panel {
-        min-height: 690px;
+        min-height: 730px;
         padding: 45px;
         display: flex;
         flex-direction: column;
@@ -96,8 +96,8 @@
     }
 
     .form-panel {
-        min-height: 690px;
-        padding: 55px 70px;
+        min-height: 730px;
+        padding: 48px 70px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -161,6 +161,27 @@
         color: #28758b;
         text-decoration: underline;
     }
+
+    @@media (max-width: 991px) {
+        .form-panel {
+            min-height: auto;
+            padding: 45px 30px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .register-page {
+            padding: 24px 12px;
+        }
+
+        .form-panel {
+            padding: 38px 22px;
+        }
+
+        .form-panel h1 {
+            font-size: 32px;
+        }
+    }
 </style>
 
 <div class="register-page">
@@ -191,10 +212,14 @@
                              xmlns="http://www.w3.org/2000/svg"
                              aria-label="Secure account illustration">
 
-                            <circle cx="84" cy="74" r="48"
+                            <circle cx="84"
+                                    cy="74"
+                                    r="48"
                                     fill="#d6f1f8" />
 
-                            <circle cx="407" cy="245" r="52"
+                            <circle cx="407"
+                                    cy="245"
+                                    r="52"
                                     fill="#dff4f8" />
 
                             <path d="M53 231 C115 180, 163 268, 225 218
@@ -204,37 +229,50 @@
                                   stroke-width="3"
                                   stroke-dasharray="7 8" />
 
-                            <rect x="88" y="55"
+                            <rect x="88"
+                                  y="55"
                                   width="304"
                                   height="197"
                                   rx="18"
                                   fill="#304f59" />
 
-                            <rect x="102" y="69"
+                            <rect x="102"
+                                  y="69"
                                   width="276"
                                   height="168"
                                   rx="10"
                                   fill="#ffffff" />
 
-                            <rect x="102" y="69"
+                            <rect x="102"
+                                  y="69"
                                   width="276"
                                   height="32"
                                   rx="10"
                                   fill="#ccebf3" />
 
-                            <circle cx="123" cy="85" r="5"
+                            <circle cx="123"
+                                    cy="85"
+                                    r="5"
                                     fill="#65bdd5" />
 
-                            <circle cx="140" cy="85" r="5"
+                            <circle cx="140"
+                                    cy="85"
+                                    r="5"
                                     fill="#8ed0e1" />
 
-                            <circle cx="157" cy="85" r="5"
+                            <circle cx="157"
+                                    cy="85"
+                                    r="5"
                                     fill="#abdce8" />
 
-                            <circle cx="240" cy="144" r="37"
+                            <circle cx="240"
+                                    cy="144"
+                                    r="37"
                                     fill="#eaf8fc" />
 
-                            <circle cx="240" cy="133" r="14"
+                            <circle cx="240"
+                                    cy="133"
+                                    r="14"
                                     fill="#65bdd5" />
 
                             <path d="M211 185
@@ -242,7 +280,8 @@
                                      C253 150 265 158 269 185 Z"
                                   fill="#65bdd5" />
 
-                            <rect x="187" y="196"
+                            <rect x="187"
+                                  y="196"
                                   width="106"
                                   height="11"
                                   rx="5"
@@ -255,7 +294,8 @@
                                      Q27 281 31 276 Z"
                                   fill="#40636e" />
 
-                            <rect x="184" y="259"
+                            <rect x="184"
+                                  y="259"
                                   width="112"
                                   height="9"
                                   rx="4"
@@ -287,7 +327,6 @@
                                       stroke-linecap="round"
                                       stroke-linejoin="round" />
                             </g>
-
                         </svg>
                     </div>
 
@@ -312,6 +351,21 @@
                         <div asp-validation-summary="ModelOnly"
                              class="text-danger mb-3"
                              role="alert">
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.FullName"
+                                   class="form-control"
+                                   autocomplete="name"
+                                   placeholder="Full name" />
+
+                            <label asp-for="Input.FullName">
+                                Full name
+                            </label>
+
+                            <span asp-validation-for="Input.FullName"
+                                  class="text-danger">
+                            </span>
                         </div>
 
                         <div class="form-floating mb-3">
@@ -368,6 +422,7 @@
                         <div class="text-center mt-4">
                             <p class="mb-0">
                                 Already have an account?
+
                                 <a asp-page="./Login"
                                    asp-route-returnUrl="@Model.ReturnUrl"
                                    class="fw-semibold">
